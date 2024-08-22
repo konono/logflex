@@ -1,0 +1,29 @@
+[project]
+name = "logflex"
+version = "0.1.0"
+description = "LogFlex, a robust and flexible logging extension for Python, enhances the standard logging module by providing streamlined configuration via environmental variables and TOML files. This library supports comprehensive log management with features like dynamic log levels, multiple output handlers (console, file, and Syslog), and automatic log rotation. Ideal for developers looking to implement advanced logging practices easily in any Python application."
+authors = [
+    { name = "kon0n0", email = "kono@ms1.kononet.jp" }
+]
+dependencies = [
+    "colorlog>=6.8.2",
+    "dacite>=1.8.1",
+    "toml>=0.10.2",
+]
+readme = "README.md"
+requires-python = ">= 3.10"
+license = { text = "MIT" }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/logflex"]

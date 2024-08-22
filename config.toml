@@ -1,0 +1,26 @@
+[general]
+log_level = "DEBUG"
+verbose = false
+trace = false
+
+[general.color_settings]
+enable_color = true
+datefmt = "%Y-%m-%d %H:%M:%S"
+reset = true
+log_colors.DEBUG = "cyan"
+log_colors.INFO = "green"
+log_colors.WARNING = "yellow"
+log_colors.ERROR = "red"
+log_colors.CRITICAL = "red,bg_white"
+style = "%"
+
+[file_handler]
+#logdir = "./logs"
+#logfile = "app.log"
+#dedicate_error_logfile = true
+
+[syslog_handler]
+use_syslog = true
+syslog_address = "localhost"
+syslog_port = 514 # UDP Port
+syslog_facility = 'LOG_USER'
