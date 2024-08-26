@@ -63,6 +63,7 @@ class GeneralSettings:
     log_level: str = 'INFO'
     verbose: bool = False
     trace: bool = False
+    format: Optional[str]= None
     color_settings: ColorSettings = field(default_factory=ColorSettings)
 
     @staticmethod
@@ -71,6 +72,7 @@ class GeneralSettings:
             'log_level': 'GENERAL_LOG_LEVEL',
             'verbose': 'GENERAL_VERBOSE',
             'trace': 'GENERAL_TRACE',
+            'format': 'GENERAL_FORMAT',
             'color_settings': ColorSettings.env_keys()
         }
 

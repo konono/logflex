@@ -1,7 +1,8 @@
 [general]
 log_level = "DEBUG"
-verbose = false
+verbose = true
 trace = false
+format = '[%(levelname)s][%(module)s][%(funcName)s][%(filename)s]: %(message)s'
 
 [general.color_settings]
 enable_color = true

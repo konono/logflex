@@ -8,30 +8,6 @@ import dacite
 from logflex.models.config_model import Configuration, GeneralSettings, FileHandlerSettings, SyslogHandlerSettings, ColorSettings
 
 
-FACILITY_MAP = {
-    "LOG_KERN": 0,
-    "LOG_USER": 1,
-    "LOG_MAIL": 2,
-    "LOG_DAEMON": 3,
-    "LOG_AUTH": 4,
-    "LOG_SYSLOG": 5,
-    "LOG_LPR": 6,
-    "LOG_NEWS": 7,
-    "LOG_UUCP": 8,
-    "LOG_CRON": 9,
-    "LOG_AUTHPRIV": 10,
-    "LOG_FTP": 11,
-    "LOG_LOCAL0": 16,
-    "LOG_LOCAL1": 17,
-    "LOG_LOCAL2": 18,
-    "LOG_LOCAL3": 19,
-    "LOG_LOCAL4": 20,
-    "LOG_LOCAL5": 21,
-    "LOG_LOCAL6": 22,
-    "LOG_LOCAL7": 23,
-}
-
-
 class ConfigLoader:
     def __init__(self, config_path=None):
         self.config_path = pathlib.Path(config_path or (os.getcwd() + '/config.toml'))
@@ -58,6 +34,7 @@ class ConfigLoader:
             log_level=get_env_value(GeneralSettings, 'log_level'),
             verbose=get_env_value(GeneralSettings, 'verbose') in ('true', '1', 't'),
             trace=get_env_value(GeneralSettings, 'trace') in ('true', '1', 't'),
+            format=get_env_value(GeneralSettings, 'format') or "[%(asctime)s] [%(levelname)s][%(module)s]: %(message)s",
             color_settings=ColorSettings(
                 enable_color=get_env_value(GeneralSettings, 'color_settings')['enable_color'] in ('true', '1', 't'),
                 datefmt=get_env_value(GeneralSettings, 'color_settings')['datefmt'],
@@ -134,6 +111,7 @@ class ConfigBuilder:
             log_level=config_kwargs.get('log_level', 'INFO'),
             verbose=config_kwargs.get('verbose', False),
             trace=config_kwargs.get('trace', False),
+            format=config_kwargs.get('format', "[%(asctime)s] [%(levelname)s][%(module)s]: %(message)s"),
             color_settings=ColorSettings(
                 enable_color=config_kwargs.get('color_enable', True),
                 datefmt=config_kwargs.get('color_datefmt', None),

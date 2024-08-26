@@ -70,7 +70,8 @@ class CustomLogger:
     @staticmethod
     def _add_stream_handler(logger, config):
         formatter = CustomLogger._setup_colored_logging(
-            CustomLogger._create_format(config.general.verbose, config.general.color_settings.enable_color),
+            CustomLogger._create_format(config.general.verbose, config.general.format,
+                                        config.general.color_settings.enable_color),
             config.general.color_settings
         )
         handler = StreamHandler()
@@ -107,7 +108,7 @@ class CustomLogger:
         )
         if file_handler_cnf.dedicate_error_logfile:
             handler.addFilter(ErrorBelowFilter())
-        formatter = Formatter(CustomLogger._create_format(general_cnf.verbose))
+        formatter = Formatter(CustomLogger._create_format(general_cnf.verbose, custom_format=general_cnf.format))
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
@@ -122,7 +123,7 @@ class CustomLogger:
             backupCount=file_handler_cnf.backup_count
         )
         handler.setLevel('ERROR')
-        formatter = Formatter(CustomLogger._create_format(False))
+        formatter = Formatter(CustomLogger._create_format(False, custom_format=config.general.format))
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
@@ -132,16 +133,49 @@ class CustomLogger:
         facility = FACILITY_MAP.get(syslog_handler_cnf.syslog_facility, SysLogHandler.LOG_LOCAL0)
         handler = SysLogHandler(address=(syslog_handler_cnf.syslog_address, syslog_handler_cnf.syslog_port),
                                 facility=facility)
-        formatter = Formatter(CustomLogger._create_format(False))
+        formatter = Formatter(CustomLogger._create_format(False, custom_format=config.general.format))
         handler.setFormatter(formatter)
         logger.addHandler(handler)
 
     @staticmethod
-    def _create_format(verbose, enable_color=False):
-        base_format = "[%(asctime)s] [%(levelname)s][%(module)s]"
+    def _setup_verbose_format(format_str):
+        elements_to_add = [
+            '%(funcName)s',
+            '%(filename)s',
+            '%(lineno)d'
+        ]
+        target_element = '%(module)s'
+
+        if f'[{target_element}]' not in format_str and target_element not in format_str:
+            return format_str
+
+        def replace_element(target, element, format_str):
+            if f'[{target}]' in format_str:
+                return format_str.replace(f'[{target}]', f'[{target}][{element}]')
+            else:
+                return format_str.replace(target, f'{target}[{element}]')
+
+        for element in elements_to_add:
+            if element not in format_str:
+                format_str = replace_element(target_element, element, format_str)
+            target_element = element
+
+        if '%(filename)s' in format_str and '%(lineno)d' in format_str:
+            format_str = format_str.replace('[%(filename)s][%(lineno)d]', '[%(filename)s:%(lineno)d]')
+
+        return format_str
+
+    @staticmethod
+    def _create_format(verbose, custom_format: str, enable_color=False):
+        if custom_format:
+            base_format = custom_format
+            if verbose:
+                base_format = CustomLogger._setup_verbose_format(base_format)
+        else:
+            base_format = "[%(asctime)s] [%(levelname)s][%(module)s]"
+            if verbose:
+                base_format = CustomLogger._setup_verbose_format(base_format)
+            base_format += ": %(message)s"
         if enable_color:
             base_format = "%(log_color)s" + base_format
-        if verbose:
-            base_format += "[%(funcName)s][%(filename)s:%(lineno)d]"
-        base_format += ": %(message)s"
         return base_format
