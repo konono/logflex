@@ -1,6 +1,6 @@
 [project]
 name = "logflex"
-version = "0.1.0"
+version = "0.1.1"
 description = "LogFlex, a robust and flexible logging extension for Python, enhances the standard logging module by providing streamlined configuration via environmental variables and TOML files. This library supports comprehensive log management with features like dynamic log levels, multiple output handlers (console, file, and Syslog), and automatic log rotation. Ideal for developers looking to implement advanced logging practices easily in any Python application."
 authors = [
     { name = "kon0n0", email = "kono@ms1.kononet.jp" }

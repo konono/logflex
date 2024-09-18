@@ -35,7 +35,7 @@ FACILITY_MAP = {
 
 @dataclass
 class ColorSettings:
-    enable_color: bool = True
+    enable_color: bool = False
     datefmt: Optional[str] = None
     reset: bool = True
     log_colors: Dict[str, str] = field(default_factory=dict)
@@ -84,6 +84,7 @@ class FileHandlerSettings:
     interval: int = 1
     backup_count: int = 7
     dedicate_error_logfile: bool = False
+    color_settings: ColorSettings = field(default_factory=ColorSettings)
 
     @staticmethod
     def env_keys():

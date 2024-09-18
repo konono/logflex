@@ -2,7 +2,7 @@
 log_level = "DEBUG"
 verbose = true
 trace = false
-format = '[%(levelname)s][%(module)s][%(funcName)s][%(filename)s]: %(message)s'
+format = '[%(levelname)s][%(module)s]: %(message)s'
 
 [general.color_settings]
 enable_color = true
@@ -16,12 +16,15 @@ log_colors.CRITICAL = "red,bg_white"
 style = "%"
 
 [file_handler]
-#logdir = "./logs"
-#logfile = "app.log"
-#dedicate_error_logfile = true
+logdir = "./logs"
+logfile = "app.log"
+dedicate_error_logfile = true
 
 [syslog_handler]
 use_syslog = true
 syslog_address = "localhost"
 syslog_port = 514 # UDP Port
 syslog_facility = 'LOG_USER'
+
+[file_handler.color_settings]
+enable_color = false

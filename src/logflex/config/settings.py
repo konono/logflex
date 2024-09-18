@@ -6,18 +6,19 @@ import pathlib
 import toml
 import dacite
 from logflex.models.config_model import Configuration, GeneralSettings, FileHandlerSettings, SyslogHandlerSettings, ColorSettings
+from typing import Optional
 
 
 class ConfigLoader:
-    def __init__(self, config_path=None):
+    def __init__(self, config_path: Optional[str] = None):
         self.config_path = pathlib.Path(config_path or (os.getcwd() + '/config.toml'))
         self.config = self._load_config()
 
     def _load_config(self) -> Configuration:
         if self.config_path.exists():
             return self._load_config_from_file()
-        else:
-            return self._load_config_from_env()
+        return self._load_config_from_env()
+
 
     def _load_config_from_file(self) -> Configuration:
         raw_config = toml.load(self.config_path)
@@ -71,33 +72,13 @@ class ConfigLoader:
             syslog_handler=syslog_handler_settings
         )
 
+
 class ConfigBuilder:
     @staticmethod
-    def _generate_default_config() -> dict:
-        default_config = {}
-        for cls in [GeneralSettings, FileHandlerSettings, SyslogHandlerSettings]:
-            for field in cls.__dataclass_fields__:
-                default_value = ConfigBuilder._get_default_value(cls, field)
-                if default_value is not None:
-                    default_config[field] = default_value
-        return default_config
-
-    @staticmethod
-    def _get_default_value(cls, field: str):
-        default_value = getattr(cls(), field, None)
-        if isinstance(default_value, dict):
-            return {}
-        return default_value
-
-    @staticmethod
     def build_config(**kwargs) -> Configuration:
-        default_config = ConfigBuilder._generate_default_config()
-
-        config_kwargs = {**default_config, **kwargs}
-
-        general_settings = ConfigBuilder._create_general_settings(config_kwargs)
-        file_handler_settings = ConfigBuilder._create_file_handler_settings(config_kwargs)
-        syslog_handler_settings = ConfigBuilder._create_syslog_handler_settings(config_kwargs)
+        general_settings = ConfigBuilder._create_general_settings(kwargs)
+        file_handler_settings = ConfigBuilder._create_file_handler_settings(kwargs)
+        syslog_handler_settings = ConfigBuilder._create_syslog_handler_settings(kwargs)
 
         return Configuration(
             general=general_settings,
