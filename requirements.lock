@@ -16,3 +16,5 @@ dacite==1.8.1
     # via logflex
 toml==0.10.2
     # via logflex
+watchdog==5.0.2
+    # via logflex

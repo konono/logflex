@@ -4,6 +4,7 @@
 import os
 import pathlib
 import traceback
+import threading
 
 from typing import List
 from logging import getLogger, StreamHandler, Formatter, Filter, ERROR, Logger
@@ -12,6 +13,7 @@ from colorlog import ColoredFormatter
 from logflex.config.settings import ConfigLoader, ConfigBuilder
 from logflex.models.config_model import FACILITY_MAP
 
+logger_lock = threading.Lock()
 
 def stacktrace_lines() -> List[str]:
     return [line for line in traceback.format_stack() if '/logflex/logflex.py' not in line]
@@ -40,29 +42,35 @@ class CustomLogger:
             config = config_loader.config
 
         logger = getLogger(module)
+        cls.configure_logger(logger, config)
 
-        if config.general.trace:
-            logger.addFilter(StackTraceFilter())
-
-        logger.setLevel(config.general.log_level)
-        logger.propagate = False
-
-
-        cls._add_handler(logger, StreamHandler, config.general, config.general)
-
-
-        if config.file_handler.logdir:
-            cls._add_handler(logger, TimedRotatingFileHandler, config.file_handler, config.general)
-
-
-        if config.file_handler.dedicate_error_logfile:
-            cls._add_error_handler(logger, config)
-
-
-        if config.syslog_handler.use_syslog:
-            cls._add_syslog_handler(logger, config)
+        if config_loader and config.general.enable_dynamic_reloading:
+            from logflex.config.watcher import start_config_watcher
+            start_config_watcher(config_loader, logger)
 
         return logger
+
+    @classmethod
+    def configure_logger(cls, logger: Logger, config):
+        with logger_lock:
+            logger.handlers.clear()
+
+            if config.general.trace:
+                logger.addFilter(StackTraceFilter())
+
+            logger.setLevel(config.general.log_level)
+            logger.propagate = False
+
+            cls._add_handler(logger, StreamHandler, config.general, config.general)
+
+            if config.file_handler.logdir:
+                cls._add_handler(logger, TimedRotatingFileHandler, config.file_handler, config.general)
+
+            if config.file_handler.dedicate_error_logfile:
+                cls._add_error_handler(logger, config)
+
+            if config.syslog_handler.use_syslog:
+                cls._add_syslog_handler(logger, config)
 
     @staticmethod
     def _add_handler(logger: Logger, handler_type, handler_config, general_config, level=None, filter=None):
@@ -199,3 +207,7 @@ class CustomLogger:
         if enable_color:
             base_format = "%(log_color)s" + base_format
         return base_format
+
+    @classmethod
+    def reconfigure_logger(cls, logger: Logger, config):
+        cls.configure_logger(logger, config)

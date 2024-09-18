@@ -1,8 +1,9 @@
 [general]
 log_level = "DEBUG"
-verbose = true
+verbose = false
 trace = false
 format = '[%(levelname)s][%(module)s]: %(message)s'
+enable_dynamic_reloading = true
 
 [general.color_settings]
 enable_color = true

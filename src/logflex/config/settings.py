@@ -19,6 +19,13 @@ class ConfigLoader:
             return self._load_config_from_file()
         return self._load_config_from_env()
 
+    def reload_config(self):
+        try:
+            self.config = self._load_config()
+            return True
+        except Exception as e:
+            print(f'{e}')
+            return False
 
     def _load_config_from_file(self) -> Configuration:
         raw_config = toml.load(self.config_path)
@@ -36,6 +43,7 @@ class ConfigLoader:
             verbose=get_env_value(GeneralSettings, 'verbose') in ('true', '1', 't'),
             trace=get_env_value(GeneralSettings, 'trace') in ('true', '1', 't'),
             format=get_env_value(GeneralSettings, 'format') or "[%(asctime)s] [%(levelname)s][%(module)s]: %(message)s",
+            enable_dynamic_reloading=get_env_value(GeneralSettings, 'enable_dynamic_reloading') in ('true', '1', 't'),
             color_settings=ColorSettings(
                 enable_color=get_env_value(GeneralSettings, 'color_settings')['enable_color'] in ('true', '1', 't'),
                 datefmt=get_env_value(GeneralSettings, 'color_settings')['datefmt'],
@@ -93,6 +101,7 @@ class ConfigBuilder:
             verbose=config_kwargs.get('verbose', False),
             trace=config_kwargs.get('trace', False),
             format=config_kwargs.get('format', "[%(asctime)s] [%(levelname)s][%(module)s]: %(message)s"),
+            enable_dynamic_reloading=config_kwargs.get('enable_dynamic_reloading', False),
             color_settings=ColorSettings(
                 enable_color=config_kwargs.get('color_enable', True),
                 datefmt=config_kwargs.get('color_datefmt', None),
@@ -105,7 +114,8 @@ class ConfigBuilder:
                     'CRITICAL': 'red,bg_white'
                 }),
                 secondary_log_colors={},
-                style=config_kwargs.get('color_style', '%')
+                style=config_kwargs.get('color_style', '%'),
+
             )
         )
 
@@ -128,3 +138,4 @@ class ConfigBuilder:
             syslog_port=config_kwargs.get('syslog_port', 514),
             syslog_facility=config_kwargs.get('syslog_facility', 'LOG_USER')
         )
+

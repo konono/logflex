@@ -65,6 +65,7 @@ class GeneralSettings:
     trace: bool = False
     format: Optional[str]= None
     color_settings: ColorSettings = field(default_factory=ColorSettings)
+    enable_dynamic_reloading: bool = False
 
     @staticmethod
     def env_keys():
@@ -73,7 +74,8 @@ class GeneralSettings:
             'verbose': 'GENERAL_VERBOSE',
             'trace': 'GENERAL_TRACE',
             'format': 'GENERAL_FORMAT',
-            'color_settings': ColorSettings.env_keys()
+            'color_settings': ColorSettings.env_keys(),
+            'enable_dynamic_reloading': False
         }
 
 @dataclass
@@ -94,6 +96,7 @@ class FileHandlerSettings:
             'when': 'FILEHANDLER_WHEN',
             'interval': 'FILEHANDLER_INTERVAL',
             'backup_count': 'FILEHANDLER_BACKUP_COUNT',
+            'color_settings': ColorSettings.env_keys(),
             'dedicate_error_logfile': 'FILEHANDLER_DEDICATE_ERROR_LOGFILE'
         }
 
